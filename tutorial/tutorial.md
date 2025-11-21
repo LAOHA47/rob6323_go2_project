@@ -368,8 +368,75 @@ rewards = {
 }
 ```
 
-By following these steps, you have transformed a simple environment into a research-grade locomotion setup capable of learning robust walking gaits!
+---
 
+## Part 5: Refining the Reward Function
+
+To achieve stable and natural-looking locomotion, we need to shape the robot's behavior further. We will add penalties for: 
+1.  **Non-flat body orientation** (projected gravity).
+2.  **Vertical body movement** (bouncing).
+3.  **Excessive joint velocities**.
+4.  **Body rolling and pitching** (angular velocity).
+
+### 5.1 Update Configuration
+
+Add the following reward scales to your configuration class.
+
+```python
+# In Rob6323Go2EnvCfg
+
+# Additional reward scales
+orient_reward_scale = -5.0
+lin_vel_z_reward_scale = -0.02
+dof_vel_reward_scale = -0.0001
+ang_vel_xy_reward_scale = -0.001
+```
+
+### 5.2 Implement Reward Terms
+
+Now, implement the logic to calculate these rewards inside `_get_rewards`. 
+
+**Hint:** You can access the robot's state directly from `self.robot.data`. 
+-   For orientation, look for `projected_gravity_b`.
+-   For base velocities, check `root_lin_vel_b` and `root_ang_vel_b`.
+-   For joint velocities, look at `joint_vel`.
+
+Try to implement the following logic using the available data:
+
+```python
+# In Rob6323Go2Env._get_rewards
+
+# 1. Penalize non-vertical orientation (projected gravity on XY plane)
+# Hint: We want the robot to stay upright, so gravity should only project onto Z.
+# Calculate the sum of squares of the X and Y components of projected_gravity_b.
+rew_orient = ... 
+
+# 2. Penalize vertical velocity (z-component of base linear velocity)
+# Hint: Square the Z component of the base linear velocity.
+rew_lin_vel_z = ... 
+
+# 3. Penalize high joint velocities
+# Hint: Sum the squares of all joint velocities.
+rew_dof_vel = ... 
+
+# 4. Penalize angular velocity in XY plane (roll/pitch)
+# Hint: Sum the squares of the X and Y components of the base angular velocity.
+rew_ang_vel_xy = ... 
+
+# Add these to your rewards dictionary with their respective scales:
+rewards = {
+    ...
+    "orient": rew_orient * self.cfg.orient_reward_scale,
+    "lin_vel_z": rew_lin_vel_z * self.cfg.lin_vel_z_reward_scale,
+    "dof_vel": rew_dof_vel * self.cfg.dof_vel_reward_scale,
+    "ang_vel_xy": rew_ang_vel_xy * self.cfg.ang_vel_xy_reward_scale,
+}
+```
+
+**Important:** Don't forget to add these new keys to your logging dictionary in `__init__` so you can track them in Tensorboard!
+
+
+By following these steps, you have transformed a simple environment into a research-grade locomotion setup capable of learning robust walking gaits!
 
 ---
 
