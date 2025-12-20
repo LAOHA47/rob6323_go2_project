@@ -135,5 +135,5 @@ You can inspect training metrics (reward curves, loss values, episode lengths) u
 
 Terrain determinism: the terrain generator uses a fixed seed in rob6323_go2_env_cfg.py (seed=0).
 
-Training seed: I did not add custom seed flags to the workflow; training reproducibility follows the original course-provided train.sh and its underlying configs. If train.sh exposes a seed option, set it there; otherwise it uses the default seed behavior from the provided training pipeline. 
+Training seed: We did not add custom seed flags to the workflow; training reproducibility follows the original course-provided train.sh and its underlying configs. It uses the default seed behavior from the provided training pipeline. 
     
